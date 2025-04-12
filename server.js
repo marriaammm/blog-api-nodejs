@@ -10,6 +10,10 @@ const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 
+app.get('/', (req, res) => {
+    res.send('Hello from your blog API!');
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('MongoDB connected'))
