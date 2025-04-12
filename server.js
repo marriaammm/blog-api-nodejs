@@ -1,34 +1,28 @@
-require ('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');   
+const serverless = require('serverless-http');
+const mongoose = require('mongoose');
 const morgan = require('morgan');
+const dotenv = require('dotenv');
 
-require('./models/Post');
-require('./models/User');
+dotenv.config();
 
 const app = express();
-//middleware
 app.use(express.json());
 app.use(morgan('dev'));
 
-//connect to mongodb
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-.then(()=>console.log('MongoDB connected'))
-.catch(err=>console.log(err));
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.error(err));
 
-//routes
+// Routes
 const postRoutes = require('./routes/postRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
-app.use('/api/posts',postRoutes);
+app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/auth',authRoutes);
+app.use('/api/auth', authRoutes);
 
-app.use((err,req,res,next)=>{
-    console.error(err.stack);
-    res.status(500).json({ message: err.message });
-});
-
-//start server
-const PORT =process.env.PORT || 3000;
-app.listen(PORT,()=>console.log(`Server running on port ${PORT}`));
+// Export for Vercel
+module.exports = app;
+module.exports.handler = serverless(app);
